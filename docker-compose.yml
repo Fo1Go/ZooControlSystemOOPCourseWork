@@ -1,25 +1,50 @@
 services:
-  db:
-    image: postgres
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
   backend:
     restart: always
+    container_name: backend_ZCS
     build: ./backend/
-    command: python manage.py runserver 0.0.0.0:1337
+    command: python manage.py runserver 0.0.0.0:5252
     volumes:
       - ./backend/:/backend
     ports:
-      - "1337:1337"
+      - 5252:5252
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
+    networks:
+      - backend
+
+  db:
+    image: postgres:16.1
+    container_name: db_postgresql
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: always
+    networks:
+      - backend
+
+  db-admin:
+    image: dpage/pgadmin4
+    container_name: pg_admin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: folgo1006@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 1236245
+    depends_on:
+      - db
+    ports:
+      - 8080:80
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

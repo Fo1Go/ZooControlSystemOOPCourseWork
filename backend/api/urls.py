@@ -3,7 +3,7 @@ from .views import AnimalsViewSet
 from django.urls import path, include
 
 router = routers.DefaultRouter()
-router.register(r'animals/', AnimalsViewSet)
+router.register(r'animals', AnimalsViewSet)
 
 
 urlpatterns = [

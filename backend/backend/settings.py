@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-ijcc#hykd&3&1p&g*n21=hyx6=zdnp!l$pft!hczn30gx+v15x
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'rest_framework',
     'api',
 ]
@@ -53,11 +54,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "PRODZOOCONTROLLSYSTEM",
-        "USERNAME": "postgres",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "postgres",
+        "USER": "postgres",
         "PASSWORD": "postgres",
-        "HOST": "localhost",
+        "HOST": "db_postgresql",
+        "PORT": "5432",
         "TEST": {
             "NAME": "TESTINGZOOCONTROLLSYSTEM",
         },

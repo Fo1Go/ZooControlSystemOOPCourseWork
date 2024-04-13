@@ -1,8 +1,12 @@
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.base_user import BaseUserManager
 from .validators import positive_check
 from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from .managers import UserManager
 
 base_model = models.Model
 
@@ -43,10 +47,19 @@ class ChoicesTypes:
 
 
 class User(AbstractUser):
-    username = None
+    username_validator = UnicodeUsernameValidator()
+
+    username = models.CharField(_("username"),
+                                null=True,
+                                blank=True,
+                                max_length=150,
+                                help_text=_("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."),
+                                validators=[username_validator])
     email = models.EmailField(_("email address"), unique=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+    objects = UserManager()
 
     def __str__(self):
         return f"User({self.email})"
@@ -100,7 +113,7 @@ class Ticket(base_model):
                                null=True, blank=False)
     type = models.CharField(choices=ChoicesTypes.ticket_types_choices)
     visit_date = models.DateField(null=False, blank=False)
-    purchase_date = models.DateField(null=False, blank=False, default=datetime.now())
+    purchase_date = models.DateField(null=False, blank=False, default=now)
     ticket_number = models.CharField(unique=True)
     price = models.FloatField()
 
@@ -169,7 +182,7 @@ class MedicalCheckup(base_model):
 
 class Feeding(base_model):
     animal = models.ForeignKey(Animal, on_delete=models.CASCADE)
-    date_feeding = models.DateField(default=datetime.now())
+    date_feeding = models.DateField(default=now)
     type_of_feeding = models.CharField(choices=ChoicesTypes.feeding_types_choices)
     count_of_feeding = models.IntegerField(validators=[positive_check], default=1, null=True, blank=True)
 
@@ -183,7 +196,7 @@ class Feeding(base_model):
 
 
 class Finance(base_model):
-    date_of_operation = models.DateField(default=datetime.now(), null=True, blank=True)
+    date_of_operation = models.DateField(default=now, null=True, blank=True)
     type_of_operation = models.CharField(choices=ChoicesTypes.types_operations_choices)
     amount = models.IntegerField(validators=[positive_check], null=False, blank=False)
     description = models.TextField(default="", null=True, blank=True)
