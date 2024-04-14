@@ -1,8 +1,8 @@
 Course project at BSUIR(OOP)<br />
 Subject of project: Zoo Control System<br />
 <a href="#endpoints">Endpoints</a><br />
-<a href="#stack">Tech stack</a><br />
-<a href="#setup">How to set up<br />
+<a href="#Project tech-stack">Tech stack</a><br />
+<a href="#How to set up project">How to set up<br />
 
 ## Endpoints
 <p>
