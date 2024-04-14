@@ -1,8 +1,8 @@
 Course project at BSUIR(OOP)<br />
 Subject of project: Zoo Control System<br />
 <a href="#endpoints">Endpoints</a><br />
-<a href="#Project tech-stack">Project tech-stack</a><br />
-<a href="#How to set up project">How to set up project<br />
+<a href="#tech-stack">Tech-stack</a><br />
+<a href="#setup">How to set up project<br />
 
 ## Endpoints
 <p>
@@ -12,7 +12,7 @@ GET/POST animals/list <br />
 GET/DELETE/PATCH animals/animal_id <br />
 </p>
 
-## Project tech-stack
+## Tech-stack
 <p>
 python:3.11.7<br />
 PostgreSQL 16.1<br />
@@ -20,7 +20,8 @@ PostgreSQL 16.1<br />
 docker for containers<br />
 </p>
 
-## How to set up project
+## Setup
+How to set up project<br />
 <p>
 1) Install docker<br />
 2) git clone https://github.com/Fo1Go/ZooControlSystemOOPCourseWork.git [directory]<br />
