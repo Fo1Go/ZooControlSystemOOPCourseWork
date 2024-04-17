@@ -1,64 +1,63 @@
 from rest_framework import serializers
 from .models import *
-from .utils import update_user_information
+from .utils import update_user_information, create_user_information
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "is_staff", "is_superuser", "is_active", "date_joined"]
+        fields = ["username", "email", "first_name", "last_name",
+                  "date_joined", "is_staff", "is_superuser", "is_active"]
 
 
 class ClientSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    tickets = serializers.SerializerMethodField()
 
     class Meta:
         model = Client
-        fields = ["user", "phone_number", "tickets"]
-
-    def get_tickets(self, obj):
-        return TicketSerializer(obj.tickets, many=True, read_only=True).data
+        fields = ["user", "phone_number", "tickets", "reviews"]
 
     def create(self, validated_data, *args, **kwargs):
-        user = User.objects.create_user(validated_data.pop('user'))
-        client = Client(user=user, **validated_data)
+        user = create_user_information(validated_data.pop("user"))
+        client = Client(user=user, phone_number=validated_data.pop('phone_number'))
         client.save()
+        user.save()
         return client
 
     def update(self, instance, validated_data, *args, **kwargs):
-        user_data = validated_data.pop('user', instance.user)
-        instance.phone_number = user_data.get('phone_number', instance.phone_number)
+        user_json = validated_data.pop('user', instance.user)
+        instance.phone_number = validated_data.pop('phone_number', instance.phone_number)
         instance.save()
-        user = update_user_information(instance, user_data)
+        user = update_user_information(instance, user_json)
         user.save()
         return instance
 
 
 class EmployerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    position = serializers.SerializerMethodField()
+    position = serializers.SerializerMethodField("get_position")
     base_salary_rate = serializers.FloatField()
 
     class Meta:
         model = Employer
         fields = ["user", "base_salary_rate", "position"]
 
-    def get_position(self, obj):
+    @property
+    def position(self, obj):
         return JobPositionSerializer(obj.position).data
 
     def create(self, validated_data, *args, **kwargs):
-        user = User.objects.create_user(validated_data.pop('user'))
+        user = create_user_information(validated_data.pop("user"))
         employer = Employer(user=user, **validated_data)
+        user.save()
         employer.save()
         return employer
 
     def update(self, instance, validated_data, *args, **kwargs):
-        user_data = validated_data.pop('user', instance.user)
-        instance.position = user_data.get('position', instance.position)
-        instance.base_salary_rate = user_data.get('base_salary_rate', instance.base_salary_rate)
+        instance.position = validated_data.get('position', instance.position)
+        instance.base_salary_rate = validated_data.get('base_salary_rate', instance.base_salary_rate)
         instance.save()
-        user = update_user_information(instance, user_data)
+        user = update_user_information(instance, validated_data.pop('user', instance.user))
         user.save()
         return instance
 
@@ -77,36 +76,6 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = ['client', 'type', 'visit_date', 'purchase_date', 'ticket_number', 'price']
 
 
-class SpeciesSerializer(serializers.ModelSerializer):
-    animals = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Species
-        fields = ['animals', 'title', 'description']
-
-    def get_animals(self, obj):
-        return AnimalSerializer(obj.animals, many=True).data
-
-class AnimalSerializer(serializers.ModelSerializer):
-    medical_checkups = serializers.SerializerMethodField()
-    species = SpeciesSerializer(read_only=True)
-
-    class Meta:
-        model = Animal
-        fields = ["species", "nickname", "description", "age_in_month", "gender", "medical_checkups"]
-
-    def medical_checkups(self, obj):
-        return MedicalCheckupSerializer(obj.medical_checkups, many=True, read_only=True).data
-
-
-class MedicalCheckupSerializer(serializers.ModelSerializer):
-    animal = AnimalSerializer(read_only=True)
-
-    class Meta:
-        model = MedicalCheckup
-        fields = ["animal", "last_date_check", "diagnosis", "recommended_actions"]
-
-
 class ContactInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInformation
@@ -119,3 +88,85 @@ class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
         fields = ["user", "title", "description"]
+
+
+class SpeciesSerializer(serializers.ModelSerializer):
+    animals = serializers.SerializerMethodField("get_animals")
+
+    class Meta:
+        model = Species
+        fields = ['title', 'description', 'animals']
+
+    @property
+    def animals(self):
+        return AnimalSerializer(obj.animals, many=True).data
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
+        return instance
+
+    def create(self, validated_data, *args, **kwargs):
+        species = Species(title=validated_data.pop('title'), description=validated_data.pop('description'))
+        species.save()
+        return species
+
+
+class AnimalSerializer(serializers.ModelSerializer):
+    species = serializers.SerializerMethodField('get_species')
+
+    class Meta:
+        model = Animal
+        fields = ["nickname", "description", "age_in_month", "gender", "species"]
+
+    @property
+    def species(self, obj):
+        return SpeciesSerializer(obj.species).data
+
+    def create(self, validated_data, *args, **kwargs):
+        species = validated_data.pop('species', None)
+        animal = Animal(species=species, **validated_data)
+        animal.save()
+        return animal
+
+    def update(self, instance, validated_data, *args, **kwargs):
+        instance.description = validated_data.pop('description', instance.description)
+        instance.nickname = validated_data.pop('nickname', instance.nickname)
+        instance.age_in_month = validated_data.pop('age_in_month', instance.age_in_month)
+        instance.gender = validated_data.pop('gender', instance.gender)
+        instance.species = validated_data.pop('species', instance.species)
+        instance.save()
+        return instance
+
+
+class MedicalCheckupSerializer(serializers.ModelSerializer):
+    animal = serializers.SerializerMethodField("get_animal")
+
+    class Meta:
+        model = MedicalCheckup
+        fields = ["last_date_check", "diagnosis", "recommended_actions", "animal"]
+
+    @property
+    def animal(self, obj):
+        return AnimalSerializer(obj.animal).data
+
+    def create(self, validated_data, *args, **kwargs):
+        animal = validated_data.pop('animal', None)
+        medical_checkup = MedicalCheckup(animal=animal, **validated_data)
+        medical_checkup.save()
+        return medical_checkup
+
+    def update(self, instance, validated_data, *args, **kwargs):
+        instance.last_date_check = validated_data.pop('last_date_check', instance.last_date_check)
+        instance.diagnosis = validated_data.pop('diagnosis', instance.diagnosis)
+        instance.recommended_actions = validated_data.pop('recommended_actions', instance.recommended_actions)
+        instance.animal = validated_data.pop('animal', instance.animal)
+        instance.save()
+        return instance
+
+
+class FinanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Finance
+        fields = "__all__"

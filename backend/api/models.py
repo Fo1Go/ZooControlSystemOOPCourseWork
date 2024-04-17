@@ -129,7 +129,7 @@ class Ticket(base_model):
 class Feedback(base_model):
     title = models.CharField(max_length=150)
     description = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="reviews", null=True)
 
     def __str__(self):
         return f'Feedback({self.title}, {self.description})'
@@ -137,7 +137,7 @@ class Feedback(base_model):
 
 class Species(base_model):
     title = models.CharField(max_length=150)
-    description = models.TextField()
+    description = models.TextField(max_length=2048, null=True, blank=True)
 
     def __str__(self):
         return f'Species({self.title})'
@@ -158,6 +158,7 @@ class Animal(base_model):
 
     class Meta:
         db_table = "animals"
+        ordering = ["nickname", "species"]
         verbose_name = _("Animal")
         verbose_name_plural = _("Animals")
 
