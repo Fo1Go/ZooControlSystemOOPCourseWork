@@ -76,6 +76,6 @@ class FinanceViewSet(ModelViewSet):
 
 
 class ContactInformationViewSet(ModelViewSet):
-    queryset = ContactInformation
+    queryset = ContactInformation.objects.all()
     serializer_class = ContactInformationSerializer
     permission_classes = (IsAdminUserOrReadOnly, )

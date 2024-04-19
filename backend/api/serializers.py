@@ -6,8 +6,8 @@ from .utils import update_user_information, create_user_information
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name",
-                  "date_joined", "is_staff", "is_superuser", "is_active"]
+        fields = ['username', 'email', 'first_name', 'last_name',
+                  'date_joined', 'is_staff', 'is_superuser', 'is_active']
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -15,10 +15,10 @@ class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = ["user", "phone_number", "tickets", "reviews"]
+        fields = ['user', 'phone_number', 'tickets', 'reviews']
 
     def create(self, validated_data, *args, **kwargs):
-        user = create_user_information(validated_data.pop("user"))
+        user = create_user_information(validated_data.pop('user'))
         client = Client(user=user, phone_number=validated_data.pop('phone_number'))
         client.save()
         user.save()
@@ -35,19 +35,19 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class EmployerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    position = serializers.SerializerMethodField("get_position")
+    position = serializers.SerializerMethodField('get_position')
     base_salary_rate = serializers.FloatField()
 
     class Meta:
         model = Employer
-        fields = ["user", "base_salary_rate", "position"]
+        fields = ['user', 'base_salary_rate', 'position']
 
     @property
     def position(self, obj):
         return JobPositionSerializer(obj.position).data
 
     def create(self, validated_data, *args, **kwargs):
-        user = create_user_information(validated_data.pop("user"))
+        user = create_user_information(validated_data.pop('user'))
         employer = Employer(user=user, **validated_data)
         user.save()
         employer.save()
@@ -65,7 +65,7 @@ class EmployerSerializer(serializers.ModelSerializer):
 class JobPositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobPosition
-        fields = ["position", "base_salary_rate"]
+        fields = ['position', 'base_salary_rate']
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -79,19 +79,19 @@ class TicketSerializer(serializers.ModelSerializer):
 class ContactInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInformation
-        fields = ["cost_adult_ticket", "cost_child_ticket", "open_time", "close_time"]
-
+        fields = ('__all__')
+        
 
 class FeedbackSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
         model = Feedback
-        fields = ["user", "title", "description"]
+        fields = ['user', 'title', 'description']
 
 
 class SpeciesSerializer(serializers.ModelSerializer):
-    animals = serializers.SerializerMethodField("get_animals")
+    animals = serializers.SerializerMethodField('get_animals')
 
     class Meta:
         model = Species
@@ -118,7 +118,7 @@ class AnimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Animal
-        fields = ["nickname", "description", "age_in_month", "gender", "species"]
+        fields = ['nickname', 'description', 'age_in_month', 'gender', 'species']
 
     @property
     def species(self, obj):
@@ -141,11 +141,11 @@ class AnimalSerializer(serializers.ModelSerializer):
 
 
 class MedicalCheckupSerializer(serializers.ModelSerializer):
-    animal = serializers.SerializerMethodField("get_animal")
+    animal = serializers.SerializerMethodField('get_animal')
 
     class Meta:
         model = MedicalCheckup
-        fields = ["last_date_check", "diagnosis", "recommended_actions", "animal"]
+        fields = ['last_date_check', 'diagnosis', 'recommended_actions', 'animal']
 
     @property
     def animal(self, obj):
@@ -166,7 +166,15 @@ class MedicalCheckupSerializer(serializers.ModelSerializer):
         return instance
 
 
+class FeedingSerializer(serializers.ModelSerializer):
+    animal = AnimalSerializer(read_only=True)
+
+    class Meta:
+        model = Feeding
+        fields = ['animal', 'date_feeding', 'type_of_feeding', 'count_of_feeding']
+
+
 class FinanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Finance
-        fields = "__all__"
+        fields = '__all__'

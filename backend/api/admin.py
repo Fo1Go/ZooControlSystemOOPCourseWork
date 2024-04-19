@@ -25,7 +25,7 @@ class ContactInformationAdmin(ModelAdmin):
 
 @register(User)
 class UserAdmin(ModelAdmin):
-    ...
+    search_fields = ['username', 'email']
 
 
 @register(Finance)

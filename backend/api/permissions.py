@@ -12,10 +12,13 @@ class IsAdminUserOrReadOnly(BasePermission):
 
 
 class IsOwnerOrIsAdmin(BasePermission):
+    def has_permission(self, request, view) -> bool:
+        return bool(request.user.is_staff)
+
     def has_object_permission(self, request, view, obj) -> bool:
-        return bool(request.user == obj.user or request.user.is_staff)
+        return bool(request.user == obj.user) or bool(request.user.is_staff)
 
 
 class IsAdminUserOrIsEmployer(BasePermission):
     def has_object_permission(self, request, view, obj) -> bool:
-        return bool(request.user.is_superuser or request.user.employer is not None)
+        return bool(request.user.is_superuser) or bool(request.user.employer is not None)

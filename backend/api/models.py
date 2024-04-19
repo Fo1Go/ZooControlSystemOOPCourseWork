@@ -83,7 +83,7 @@ class Employer(base_model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     position = models.ForeignKey(JobPosition, related_name="employer",
                                  on_delete=models.SET_NULL, null=True, blank=True)
-    base_salary_rate = models.FloatField(validators=[positive_check],
+    salary_multiplier = models.FloatField(validators=[positive_check],
                                          default=1, blank=False, null=False)
 
     class Meta:
@@ -115,7 +115,7 @@ class Ticket(base_model):
     visit_date = models.DateField(null=False, blank=False)
     purchase_date = models.DateField(null=False, blank=False, default=now)
     ticket_number = models.CharField(unique=True)
-    price = models.FloatField()
+    price = models.FloatField(null=False)
 
     class Meta:
         db_table = "tickets"
