@@ -4,11 +4,8 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 AUTH_USER_MODEL = "api.User"
-
 SECRET_KEY = 'django-insecure-ijcc#hykd&3&1p&g*n21=hyx6=zdnp!l$pft!hczn30gx+v15x'
-
 DEBUG = True
-
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 INSTALLED_APPS = [
@@ -61,7 +58,7 @@ DATABASES = {
         "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "postgres",
-        "HOST": "db_postgresql",
+        "HOST": "db_postgresql_zoo",
         "PORT": "5432",
         "TEST": {
             "NAME": "TESTINGZOOCONTROLLSYSTEM",

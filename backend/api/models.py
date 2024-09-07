@@ -92,7 +92,7 @@ class Employer(base_model):
         verbose_name_plural = _("employers")
 
     def __str__(self):
-        return f"Employer({self.email} {self.position})"
+        return f"Employer({self.user.email} {self.position})"
 
 
 class Client(base_model):
@@ -105,7 +105,7 @@ class Client(base_model):
         verbose_name_plural = _("clients")
 
     def __str__(self):
-        return f"Client({self.email})"
+        return f"Client({self.user.email})"
 
 
 class Ticket(base_model):
